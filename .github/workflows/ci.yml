@@ -43,5 +43,7 @@ jobs:
 
       - name: Upload latest cross platform releases to Github
         if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: $GH_TOKEN
         run: |
           cd ./target && for f in hoverfly_bundle*;do github-release upload  --user IGoRFonin --repo hoverfly --tag "${{github.ref_name}}" --name "$f" --file "$f"; done
