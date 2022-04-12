@@ -39,11 +39,11 @@ build:
 	go build -ldflags "-X main.hoverctlVersion=$(GIT_TAG_NAME)" -o ../target/hoverctl
 
 build-ui:
-	wget https://github.com/SpectoLabs/hoverfly-ui/releases/download/$(GIT_TAG_NAME)/$(GIT_TAG_NAME).zip
-	unzip $(GIT_TAG_NAME).zip -d hoverfly-ui	
+	wget https://github.com/MegafonWebLab/hoverfly-ui/releases/download/v0.1.2/release.zip
+	unzip release.zip -d hoverfly-ui
 	cd core && \
-	statik -src=../hoverfly-ui
-	rm -rf $(GIT_TAG_NAME).zip
+	statik -src=../hoverfly-ui/build
+	rm -rf release.zip
 	rm -rf hoverfly-ui
 
 benchmark:
