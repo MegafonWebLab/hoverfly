@@ -1,8 +1,5 @@
 name: test and release
 
-env:
-  GOPATH: /go
-
 on: push
 
 jobs:
