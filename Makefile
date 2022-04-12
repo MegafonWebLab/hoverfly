@@ -42,7 +42,7 @@ build-ui:
 	wget https://github.com/MegafonWebLab/hoverfly-ui/releases/download/v0.1.2/release.zip
 	unzip release.zip -d hoverfly-ui
 	cd core && \
-	statik -src=../hoverfly-ui
+	statik -src=../hoverfly-ui/build
 	rm -rf release.zip
 	rm -rf hoverfly-ui
 
