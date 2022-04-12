@@ -44,4 +44,4 @@ jobs:
       - name: Upload latest cross platform releases to Github
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          cd ./target && for f in hoverfly_bundle*;do github-release upload  --user SpectoLabs --repo hoverfly --tag "$CIRCLE_TAG" --name "$f" --file "$f"; done
+          cd ./target && for f in hoverfly_bundle*;do github-release upload  --user IGoRFonin --repo hoverfly --tag "${{github.ref_name}}" --name "$f" --file "$f"; done
