@@ -38,4 +38,4 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
           registry: ghcr.io
-          tags: "latest"
+          tag_semver: true
