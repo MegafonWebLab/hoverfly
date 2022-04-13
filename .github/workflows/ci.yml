@@ -40,4 +40,4 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
           registry: ghcr.io
-          tags: "latest,${{ env.STATE_RELEASE_VERSION }}"
+          tags: "${{ env.STATE_RELEASE_VERSION }}"
