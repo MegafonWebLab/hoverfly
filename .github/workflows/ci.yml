@@ -32,7 +32,7 @@ jobs:
 
       - name: Publish to Registry
         if: startsWith(github.ref, 'refs/tags/')
-        pre: echo ::save-state name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+        run: echo ::save-state name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
         uses: elgohr/Publish-Docker-Github-Action@v4
         with:
           name: IGoRFonin/hoverfly
