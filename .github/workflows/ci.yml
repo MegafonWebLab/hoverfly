@@ -33,9 +33,9 @@ jobs:
       - name: Publish to Registry
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          docker build -t ghrc.io/igorfonin/hoverfly .
-          docker tag ghrc.io/igorfonin/hoverfly ghrc.io/igorfonin/hoverfly:${GITHUB_REF:10}
-          docker tag ghrc.io/igorfonin/hoverfly ghrc.io/igorfonin/hoverfly:latest
+          docker build -t igorfonin/hoverfly .
+          docker tag igorfonin/hoverfly ghrc.io/igorfonin/hoverfly:${GITHUB_REF:10}
+          docker tag igorfonin/hoverfly ghrc.io/igorfonin/hoverfly:latest
           docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.GH_TOKEN }} ghrc.io
           docker push ghrc.io/igorfonin/hoverfly:${GITHUB_REF:10}
           docker push ghrc.io/igorfonin/hoverfly:latest
