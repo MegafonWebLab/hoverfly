@@ -34,8 +34,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: elgohr/Publish-Docker-Github-Action@v4
         with:
-          name: IGoRFonin/hoverfly/hoverfly
+          name: IGoRFonin/hoverfly
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
           registry: ghcr.io
-          tag_semver: true
+          tags: ${GITHUB_REF#refs/*/}
