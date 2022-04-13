@@ -42,3 +42,18 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: target/hoverfly_bundle_*
+
+      - name: Docker login
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+      - name: Docker build
+        if: startsWith(github.ref, 'refs/tags/')
+        run: docker build -t igorfonin/hoverfly:${GITHUB_REF#refs/*/} .
+
+      - name: Docker push
+        if: startsWith(github.ref, 'refs/tags/')
+        run: docker push ${{secrets.DOCKER_USER}}/hoverfly

@@ -1,6 +1,7 @@
 FROM golang:1.16.7 AS build-env
-WORKDIR /usr/local/go/src/github.com/SpectoLabs/hoverfly
-COPY . /usr/local/go/src/github.com/SpectoLabs/hoverfly    
+WORKDIR /usr/local/go/src/github.com/IGoRFonin/hoverfly
+COPY . /usr/local/go/src/github.com/IGoRFonin/hoverfly
+RUN make build-ui
 RUN cd core/cmd/hoverfly && CGO_ENABLED=0 GOOS=linux go install -ldflags "-s -w"
 
 FROM alpine:latest
