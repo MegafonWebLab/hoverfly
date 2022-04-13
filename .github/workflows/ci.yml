@@ -30,19 +30,6 @@ jobs:
         run: |
           GO111MODULE=off go get github.com/mitchellh/gox
 
-      - name: Build cross platform releases
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GOPATH: /home/runner/go
-        run: |
-          GIT_TAG_NAME=master-$GITHUB_RUN_NUMBER SHELL=/bin/bash ./build-release.sh
-
-      - name: Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: target/hoverfly_bundle_*
-
       - name: Publish to Registry
         if: startsWith(github.ref, 'refs/tags/')
         uses: elgohr/Publish-Docker-Github-Action@v4
@@ -51,4 +38,4 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
           registry: ghcr.io
-          tags: "latest,${GITHUB_REF#refs/*/}"
+          tags: "latest"
