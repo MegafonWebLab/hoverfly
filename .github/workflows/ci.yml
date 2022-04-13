@@ -35,6 +35,6 @@ jobs:
         run: |
           docker build -t igorfonin/hoverfly:${GITHUB_REF:10} .
           docker tag igorfonin/hoverfly:${GITHUB_REF:10} igorfonin/hoverfly:latest
-          docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.GH_TOKEN }} ghrc.io
+          cat /home/runner/.docker/config.json | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin ghrc.io
           docker push igorfonin/hoverfly:$CIRCLE_TAG
           docker push igorfonin/hoverfly:latest
