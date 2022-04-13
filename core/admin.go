@@ -86,6 +86,7 @@ func (this *AdminApi) addDashboardRoutes(router *bone.Mux) *bone.Mux {
 	router.HandleFunc("/simulations/new", indexHandler)
 	router.HandleFunc("/simulations", indexHandler)
 	router.HandleFunc("/settings", indexHandler)
+	router.HandleFunc("/login", indexHandler)
 	router.Handle("/", http.FileServer(statikFS))
 	router.Handle("/*.js", http.FileServer(statikFS))
 	router.Handle("/*.css", http.FileServer(statikFS))
