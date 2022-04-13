@@ -40,4 +40,4 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GH_TOKEN }}
           registry: ghcr.io
-          tags: $TAG
+          tags: "$TAG"
