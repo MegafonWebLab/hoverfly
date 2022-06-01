@@ -1,11 +1,9 @@
-FROM golang:1.16.7 AS build-env
-WORKDIR /usr/local/go/src/github.com/SpectoLabs/hoverfly
-COPY . /usr/local/go/src/github.com/SpectoLabs/hoverfly
-RUN cd core/cmd/hoverfly && CGO_ENABLED=0 GOOS=linux go install -ldflags "-s -w"
-
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
-COPY --from=build-env /usr/local/go/bin/hoverfly /bin/hoverfly
+
+COPY target/bin/linux/amd64/hoverfly /bin/hoverfly
+COPY target/bin/linux/amd64/hoverctl /bin/hoverctl
+
 ENTRYPOINT ["/bin/hoverfly", "-listen-on-host=0.0.0.0"]
 CMD [""]
 

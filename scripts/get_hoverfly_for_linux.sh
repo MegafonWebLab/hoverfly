@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-HOVERFLY_VERSION=$(curl -s https://api.github.com/repos/spectolabs/hoverfly/releases/latest | grep tag_name | sed -n 's/.*"tag_name": "\(.*\)",/\1/p')
+HOVERFLY_VERSION=$(curl -s https://api.github.com/repos/MegafonWebLab/hoverfly/releases/latest | grep tag_name | sed -n 's/.*"tag_name": "\(.*\)",/\1/p')
 if [[ $?  == 1 ]]; then
     error_exit "Failed to get latest release version"
 fi
 
-HOVERFLY_DOWNLOAD_URL=https://github.com/SpectoLabs/hoverfly/releases/download/${HOVERFLY_VERSION}
+HOVERFLY_DOWNLOAD_URL=https://github.com/MegafonWebLab/hoverfly/releases/download/${HOVERFLY_VERSION}
 
 
 # Download distribution package for Linux

@@ -27,5 +27,3 @@ for OSARCH in "${OSARCH_LIST[@]}"; do
   cp ${LICENSE} ${BIN_TARGET_DIR}/LICENSE.txt
   zip -j ${ZIP_FILE} ${BIN_TARGET_DIR}/*
 done
-
-rm -rf ${ZIP_TARGET_DIR}/bin
