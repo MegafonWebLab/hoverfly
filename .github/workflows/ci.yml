@@ -52,3 +52,11 @@ jobs:
           docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.GH_TOKEN }} ghcr.io
           docker push ghcr.io/${{ secrets.DOCKER_IMAGE_USER }}/hoverfly:${GITHUB_REF:10}
           docker push ghcr.io/${{ secrets.DOCKER_IMAGE_USER }}/hoverfly:latest
+
+      - name: Publish to master tag
+        if: startsWith(github.ref, 'refs/heads/master')
+        run: |
+          docker build -t ${{ secrets.DOCKER_IMAGE_USER }}/hoverfly .
+          docker tag ${{ secrets.DOCKER_IMAGE_USER }}/hoverfly ghcr.io/${{ secrets.DOCKER_IMAGE_USER }}/hoverfly:master
+          docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.GH_TOKEN }} ghcr.io
+          docker push ghcr.io/${{ secrets.DOCKER_IMAGE_USER }}/hoverfly:master
