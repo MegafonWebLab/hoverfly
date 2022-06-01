@@ -53,7 +53,7 @@ jobs:
           docker push ghcr.io/${{ secrets.DOCKER_IMAGE_USER }}/hoverfly:${GITHUB_REF:10}
           docker push ghcr.io/${{ secrets.DOCKER_IMAGE_USER }}/hoverfly:latest
 
-      - name: Publish to master tag
+      - name: Publish to Registry master tag
         if: startsWith(github.ref, 'refs/heads/master')
         run: |
           docker build -t ${{ secrets.DOCKER_IMAGE_USER }}/hoverfly .
