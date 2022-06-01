@@ -31,7 +31,7 @@ jobs:
           GO111MODULE=off go get github.com/mitchellh/gox
 
       - name: Build cross platform releases
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/master')
         env:
           GOPATH: /home/runner/go
         run: |
