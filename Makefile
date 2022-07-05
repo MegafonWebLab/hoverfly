@@ -39,7 +39,7 @@ build:
 	go build -ldflags "-X main.hoverctlVersion=$(GIT_TAG_NAME)" -o ../target/hoverctl
 
 build-ui:
-	wget https://github.com/MegafonWebLab/hoverfly-ui/releases/download/v0.2.2/release.zip
+	wget https://github.com/MegafonWebLab/hoverfly-ui/releases/download/v0.2.3/release.zip
 	mkdir hoverfly-ui
 	unzip ./release.zip -d hoverfly-ui
 	cd core && \
