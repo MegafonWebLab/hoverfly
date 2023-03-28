@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/SpectoLabs/hoverfly/core/handlers/v1"
-	"github.com/SpectoLabs/hoverfly/core/handlers/v2"
+	v1 "github.com/SpectoLabs/hoverfly/core/handlers/v1"
+	v2 "github.com/SpectoLabs/hoverfly/core/handlers/v2"
 	"github.com/SpectoLabs/hoverfly/core/matching/matchers"
 	"github.com/SpectoLabs/hoverfly/core/models"
 	"github.com/SpectoLabs/hoverfly/core/modes"
@@ -126,7 +126,7 @@ func Test_Hoverfly_GetSimulation_ReturnsBlankSimulation_ifThereIsNoData(t *testi
 	Expect(simulation.RequestResponsePairs).To(HaveLen(0))
 	Expect(simulation.GlobalActions.Delays).To(HaveLen(0))
 
-	Expect(simulation.MetaView.SchemaVersion).To(Equal("v5.1"))
+	Expect(simulation.MetaView.SchemaVersion).To(Equal("v5.2"))
 	Expect(simulation.MetaView.HoverflyVersion).To(MatchRegexp(`v\d+.\d+.\d+(-rc.\d)*`))
 	Expect(simulation.MetaView.TimeExported).ToNot(BeNil())
 }
@@ -423,7 +423,7 @@ func Test_Hoverfly_GetFilteredSimulation_ReturnBlankSimulation_IfThereIsNoMatch(
 	Expect(simulation.GlobalActions.Delays).To(HaveLen(0))
 	Expect(simulation.GlobalActions.DelaysLogNormal).To(HaveLen(0))
 
-	Expect(simulation.MetaView.SchemaVersion).To(Equal("v5.1"))
+	Expect(simulation.MetaView.SchemaVersion).To(Equal("v5.2"))
 	Expect(simulation.MetaView.HoverflyVersion).To(MatchRegexp(`v\d+.\d+.\d+(-rc.\d)*`))
 	Expect(simulation.MetaView.TimeExported).ToNot(BeNil())
 }
@@ -1162,7 +1162,6 @@ func Test_Hoverfly_PutSimulation_NotOverridesSimulation(t *testing.T) {
 	Expect(simulation.RequestResponsePairs[1].Response.Body).To(Equal(pairTwo.Response.Body))
 }
 
-
 func Test_Hoverfly_PutSimulation_BodyAndBodyFileWarning(t *testing.T) {
 	RegisterTestingT(t)
 
@@ -1176,7 +1175,7 @@ func Test_Hoverfly_PutSimulation_BodyAndBodyFileWarning(t *testing.T) {
 					},
 				},
 				Response: v2.ResponseDetailsViewV5{
-					Body: "test-body",
+					Body:     "test-body",
 					BodyFile: "test-file",
 				},
 			}},
@@ -1259,7 +1258,7 @@ func Test_Hoverfly_PutSimulation_ImportsBodyFileFromURL(t *testing.T) {
 					},
 				},
 				Response: v2.ResponseDetailsViewV5{
-					BodyFile: server.URL+"/key.pem",
+					BodyFile: server.URL + "/key.pem",
 				},
 			}},
 		},
@@ -1271,7 +1270,7 @@ func Test_Hoverfly_PutSimulation_ImportsBodyFileFromURL(t *testing.T) {
 	Expect(err).To(BeNil())
 
 	Expect(simulation.RequestResponsePairs[0].Response.Body).To(HavePrefix("-----BEGIN RSA PRIVATE KEY-----"))
-	Expect(simulation.RequestResponsePairs[0].Response.BodyFile).To(Equal(server.URL+"/key.pem"))
+	Expect(simulation.RequestResponsePairs[0].Response.BodyFile).To(Equal(server.URL + "/key.pem"))
 }
 
 func Test_Hoverfly_PutSimulation_ImportsBodyFileFromURL_NoOrigins(t *testing.T) {
@@ -1294,7 +1293,7 @@ func Test_Hoverfly_PutSimulation_ImportsBodyFileFromURL_NoOrigins(t *testing.T) 
 					},
 				},
 				Response: v2.ResponseDetailsViewV5{
-					BodyFile: server.URL+"/key.pem",
+					BodyFile: server.URL + "/key.pem",
 				},
 			}},
 		},
@@ -1324,7 +1323,7 @@ func Test_Hoverfly_PutSimulation_ImportsBodyFileFromURL_NoMatchingOrigins(t *tes
 					},
 				},
 				Response: v2.ResponseDetailsViewV5{
-					BodyFile: server.URL+"/key.pem",
+					BodyFile: server.URL + "/key.pem",
 				},
 			}},
 		},
@@ -1332,4 +1331,25 @@ func Test_Hoverfly_PutSimulation_ImportsBodyFileFromURL_NoMatchingOrigins(t *tes
 
 	Expect(importResult.GetError()).NotTo(BeNil())
 	Expect(importResult.GetError().Error()).To(MatchRegexp(`bodyFile http:\/\/.+/key.pem is not allowed`))
+}
+
+func TestHoverfly_GetFilteredDiff(t *testing.T) {
+
+	RegisterTestingT(t)
+
+	unit := NewHoverflyWithConfiguration(&Configuration{})
+
+	key := v2.SimpleRequestDefinitionView{
+		Host: "test.com",
+	}
+	unit.AddDiff(key, v2.DiffReport{Timestamp: "now", DiffEntries: []v2.DiffReportEntry{{Field: "header/test1", Actual: "1"}}})
+	unit.AddDiff(key, v2.DiffReport{Timestamp: "now", DiffEntries: []v2.DiffReportEntry{{Field: "body/test1", Actual: "2"}}})
+	unit.AddDiff(key, v2.DiffReport{Timestamp: "now", DiffEntries: []v2.DiffReportEntry{{Field: "body/test2", Actual: "3"}}})
+
+	filteredResponses := unit.GetFilteredDiff(v2.DiffFilterView{ExcludedResponseFields: []string{"$.test1"}})
+
+	Expect(filteredResponses).To(HaveLen(1))
+	Expect(filteredResponses[key]).To(HaveLen(2))
+	Expect(filteredResponses[key][0].DiffEntries[0].Field).Should(Equal("header/test1"))
+	Expect(filteredResponses[key][1].DiffEntries[0].Field).Should(Equal("body/test2"))
 }

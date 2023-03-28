@@ -7,15 +7,17 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
 	"regexp"
 	"sort"
 	"strings"
 
-	"github.com/tdewolff/minify"
-	mjson "github.com/tdewolff/minify/json"
-	"github.com/tdewolff/minify/xml"
 	"strconv"
 	"time"
+
+	"github.com/tdewolff/minify/v2"
+	mjson "github.com/tdewolff/minify/v2/json"
+	"github.com/tdewolff/minify/v2/xml"
 )
 
 // GetRequestBody will read the http.Request body io.ReadCloser
@@ -153,6 +155,9 @@ func GetContentTypeFromHeaders(headers map[string][]string) string {
 		if regexp.MustCompile("[/+]xml$").MatchString(v) {
 			return "xml"
 		}
+		if regexp.MustCompile(`form\-\w+$`).MatchString(v) {
+			return "form"
+		}
 	}
 	return ""
 }
@@ -199,6 +204,7 @@ func CopyMap(originalMap map[string]string) map[string]string {
 
 // URL is regexp to match http urls
 const urlPattern = `^((ftp|https?):\/\/)(\S+(:\S*)?@)?((([1-9]\d?|1\d\d|2[01]\d|22[0-3])(\.(1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.([0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(([a-zA-Z0-9]+([-\.][a-zA-Z0-9]+)*)|((www\.)?))?(([a-z\x{00a1}-\x{ffff}0-9]+-?-?)*[a-z\x{00a1}-\x{ffff}0-9]+)(?:\.([a-z\x{00a1}-\x{ffff}]{2,}))?))(:(\d{1,5}))?((\/|\?|#)[^\s]*)?$`
+
 var rxURL = regexp.MustCompile(urlPattern)
 
 func IsURL(str string) bool {
@@ -250,4 +256,80 @@ func CompressGzip(body []byte) ([]byte, error) {
 	}
 
 	return byteBuffer.Bytes(), err
+}
+
+func Identical(first, second []string) bool {
+	if len(first) != len(second) {
+		return false
+	}
+	for i, v := range first {
+		if v != second[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func Contains(first, second []string) bool {
+
+	set := make(map[string]bool)
+	for _, value := range first {
+		set[value] = true
+	}
+
+	for _, value := range second {
+
+		if _, found := set[value]; found {
+			return true
+		}
+	}
+
+	return false
+}
+
+func ContainsOnly(first, second []string) bool {
+
+	set := make(map[string]bool)
+
+	for _, value := range first {
+		set[value] = true
+	}
+
+	for _, value := range second {
+
+		if _, found := set[value]; !found {
+			return false
+		}
+	}
+	return true
+}
+
+func GetStringArray(data interface{}) ([]string, bool) {
+	val := reflect.ValueOf(data)
+	if val.Kind() != reflect.Slice {
+		return nil, false
+	}
+	var dataArr []string
+	for i := 0; i < val.Len(); i++ {
+		currentValue := val.Index(i)
+		if currentValue.Kind() == reflect.Interface {
+			dataArr = append(dataArr, currentValue.Elem().String())
+		} else {
+			dataArr = append(dataArr, currentValue.String())
+		}
+
+	}
+	return dataArr, true
+}
+
+func GetBoolOrDefault(data map[string]interface{}, key string, defaultValue bool) bool {
+	if data == nil {
+		return defaultValue
+	}
+
+	genericValue, found := data[key]
+	if !found {
+		return defaultValue
+	}
+	return genericValue.(bool)
 }

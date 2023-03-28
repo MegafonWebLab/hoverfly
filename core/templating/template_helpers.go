@@ -2,6 +2,7 @@ package templating
 
 import (
 	"fmt"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/SpectoLabs/hoverfly/core/matching/matchers"
 	"github.com/SpectoLabs/hoverfly/core/util"
+	"github.com/brianvoe/gofakeit/v6"
 	"github.com/icrowley/fake"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,38 +20,8 @@ import (
 const defaultDateTimeFormat = "2006-01-02T15:04:05Z07:00"
 
 type templateHelpers struct {
-	now func() time.Time
-}
-
-func (t templateHelpers) iso8601DateTime() string {
-	return t.now().UTC().Format(defaultDateTimeFormat)
-}
-
-func (t templateHelpers) iso8601DateTimePlusDays(days string) string {
-	atoi, _ := strconv.Atoi(days)
-	return t.now().AddDate(0, 0, atoi).UTC().Format(defaultDateTimeFormat)
-}
-
-func (t templateHelpers) currentDateTime(format string) string {
-	return t.now().UTC().Format(format)
-}
-
-func (t templateHelpers) currentDateTimeAdd(addTime string, format string) string {
-	now := t.now()
-	duration, err := ParseDuration(addTime)
-	if err == nil {
-		now = now.Add(duration)
-	}
-	return now.UTC().Format(format)
-}
-
-func (t templateHelpers) currentDateTimeSubtract(subtractTime string, format string) string {
-	now := t.now()
-	duration, err := ParseDuration(subtractTime)
-	if err == nil {
-		now = now.Add(-duration)
-	}
-	return now.UTC().Format(format)
+	now         func() time.Time
+	fakerSource *gofakeit.Faker
 }
 
 func (t templateHelpers) nowHelper(offset string, format string) string {
@@ -122,16 +94,21 @@ func (t templateHelpers) randomUuid() string {
 func (t templateHelpers) requestBody(queryType, query string, options *raymond.Options) string {
 	toMatch := options.Value("request").(Request).body
 	queryType = strings.ToLower(queryType)
+	return fetchFromRequestBody(queryType, query, toMatch)
+}
+
+func fetchFromRequestBody(queryType, query, toMatch string) string {
+
 	if queryType == "jsonpath" {
-		return t.jsonPath(query, toMatch)
+		return jsonPath(query, toMatch)
 	} else if queryType == "xpath" {
-		return t.xPath(query, toMatch)
+		return xPath(query, toMatch)
 	}
 	log.Errorf("Unknown query type \"%s\" for templating Request.Body", queryType)
 	return ""
 }
 
-func (t templateHelpers) jsonPath(query, toMatch string) string {
+func jsonPath(query, toMatch string) string {
 	query = prepareJsonPathQuery(query)
 
 	result, err := matchers.JsonPathExecution(query, toMatch)
@@ -141,7 +118,7 @@ func (t templateHelpers) jsonPath(query, toMatch string) string {
 	return result
 }
 
-func (t templateHelpers) xPath(query, toMatch string) string {
+func xPath(query, toMatch string) string {
 	result, err := matchers.XpathExecution(query, toMatch)
 	if err != nil {
 		return ""
@@ -159,4 +136,15 @@ func prepareJsonPathQuery(query string) string {
 	}
 
 	return query
+}
+
+func (t templateHelpers) faker(fakerType string) []reflect.Value {
+
+	if t.fakerSource == nil {
+		t.fakerSource = gofakeit.New(0)
+	}
+	if reflect.ValueOf(t.fakerSource).MethodByName(fakerType).IsValid() {
+		return reflect.ValueOf(t.fakerSource).MethodByName(fakerType).Call([]reflect.Value{})
+	}
+	return []reflect.Value{}
 }

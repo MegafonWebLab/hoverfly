@@ -48,8 +48,12 @@ target
 *.swo
 *.out
 
+# Vscode
+.vscode
+
 core/cmd/hoverfly/hoverfly
 hoverctl/hoverctl
+functional-tests/core/sandbox-*
 functional-tests/core/bin/hoverfly
 functional-tests/hoverctl/bin/hoverfly
 functional-tests/hoverctl/bin/hoverctl

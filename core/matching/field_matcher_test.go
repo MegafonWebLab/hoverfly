@@ -155,6 +155,55 @@ var fieldMatcherTests = []fieldMatcherTest{
 		toMatch: `<document></document>`,
 		equals:  BeTrue(),
 	},
+	{
+		name: "MatcherChaining1",
+		matchers: []models.RequestFieldMatchers{
+			{
+				Matcher: "xpath",
+				Value:   "/document/id",
+				DoMatch: &models.RequestFieldMatchers{
+					Matcher: "exact",
+					Value:   "12345",
+				},
+			},
+		},
+		toMatch: "<document><id>12345</id><name>Test</name></document>",
+		equals:  BeTrue(),
+	},
+	{
+		name: "MatcherChaining2",
+		matchers: []models.RequestFieldMatchers{
+			{
+				Matcher: "xpath",
+				Value:   "/document/details",
+				DoMatch: &models.RequestFieldMatchers{
+					Matcher: "jsonpath",
+					Value:   "$.name",
+					DoMatch: &models.RequestFieldMatchers{
+						Matcher: "glob",
+						Value:   "*es*",
+						DoMatch: &models.RequestFieldMatchers{
+							Matcher: "exact",
+							Value:   "Test",
+						},
+					},
+				},
+			},
+		},
+		toMatch: `<document><details>{"name":"Test", "id":"12345"}</details></document>`,
+		equals:  BeTrue(),
+	},
+	{
+		name: "TestJwtMatcher",
+		matchers: []models.RequestFieldMatchers{
+			{
+				Matcher: "jwt",
+				Value:   `{"header":{"alg":"HS256"},"payload":{"sub":"1234567890","name":"John Doe"}}`,
+			},
+		},
+		toMatch: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c`,
+		equals:  BeTrue(),
+	},
 }
 
 func Test_FieldMatcher(t *testing.T) {
